@@ -1,45 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Alert } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Home() {
+export default function Home({ route, navigation }) {
   const [user, setUser] = useState(null);
   const [persons, setPersons] = useState([]);
 
-  const fetchUser = async () => {
-    try {
-      const data = await AsyncStorage.getItem('user');
-      if (data) setUser(JSON.parse(data));
-    } catch (error) {
-      Alert.alert('Erreur', 'Impossible de charger utilisateur');
-    }
+  // Fonction pour charger les données
+  const loadData = async () => {
+    const userData = await AsyncStorage.getItem('user');
+    if (!userData) return;
+
+    const u = JSON.parse(userData);
+    setUser(u);
+
+    const key = `persons_${u.name}`;
+    const data = await AsyncStorage.getItem(key);
+    setPersons(data ? JSON.parse(data) : []);
   };
 
-  const fetchPersons = async () => {
-    try {
-      const data = await AsyncStorage.getItem('persons');
-      if (data) setPersons(JSON.parse(data));
-    } catch (error) {
-      Alert.alert('Erreur', 'Impossible de charger la liste');
-    }
-  };
-
+  
   useEffect(() => {
-    fetchUser();
-    fetchPersons();
+    loadData();
   }, []);
 
-  return (
-    <View>
-      <Text>Welcome {user?.name}</Text>
+ 
+  useEffect(() => {
+    if (route?.params?.refresh) {
+      loadData();
+     
+      navigation.setParams({ refresh: false });
+    }
+  }, [route?.params?.refresh]);
 
-      <FlatList
-        data={persons}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={({ item }) => (
-          <Text>{item.nom} {item.prenom} - {item.age}</Text>
-        )}
-      />
+  return (
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 18, marginBottom: 10 }}>
+        Bienvenue {user?.name}
+      </Text>
+
+      {persons.length === 0 ? (
+        <Text>Aucune personne enregistrée.</Text>
+      ) : (
+        <FlatList
+          data={persons}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Text style={{ marginBottom: 5 }}>
+              {item.nom} {item.prenom} - {item.age} ans | {item.filiere} | {item.sexe}
+            </Text>
+          )}
+        />
+      )}
     </View>
   );
 }

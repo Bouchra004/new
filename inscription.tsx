@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Register({ navigation }) {
+export default function Register({ onRegister }) {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
 
@@ -13,23 +13,22 @@ export default function Register({ navigation }) {
     }
 
     try {
-      const user = {
-        name,
-        password, // ⚠️ pour projet scolaire (pas sécurisé en vrai)
-      };
+      const user = { name, password };
 
+      
       await AsyncStorage.setItem('user', JSON.stringify(user));
 
-      // Liste des personnes enregistrées
+      
       const existing = await AsyncStorage.getItem('persons');
       if (!existing) {
         await AsyncStorage.setItem('persons', JSON.stringify([]));
       }
 
-      // 🔐 replace = pas de retour possible
-      navigation.replace('DrawerStack');
+      
+      onRegister();
 
     } catch (error) {
+      console.log(error);
       Alert.alert('Erreur', 'Inscription échouée');
     }
   };
@@ -51,7 +50,7 @@ export default function Register({ navigation }) {
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
 
-      <Button title="S'inscrire" onPress={saveUser} />
+      <Button title="Se connecter" onPress={saveUser} />
     </View>
   );
 }

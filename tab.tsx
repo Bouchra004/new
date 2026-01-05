@@ -15,12 +15,7 @@ export default function BottomTabs() {
         options={{ title: 'Home' }}
       />
 
-      <Tab.Screen
-        name="Add"
-        component={AddPerson}
-        options={{ title: '+' }}
-      />
-
+  
       <Tab.Screen
         name="Status"
         component={Status}

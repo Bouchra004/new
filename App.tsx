@@ -9,33 +9,33 @@ import DrawerStack from './drawer';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [isLogged, setIsLogged] = useState(null); // ⬅️ important
+  const [isLogged, setIsLogged] = useState(null);
 
   const checkUser = async () => {
-    try {
-      const user = await AsyncStorage.getItem('user');
-      setIsLogged(!!user);
-    } catch (e) {
-      setIsLogged(false);
-    }
+    const user = await AsyncStorage.getItem('user');
+    setIsLogged(!!user);
   };
 
   useEffect(() => {
     checkUser();
   }, []);
 
-  if (isLogged === null) return null; // splash simple
+  if (isLogged === null) return null;
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLogged ? (
-          <Stack.Screen name="DrawerStack">
-            {props => <DrawerStack {...props} onLogout={checkUser} />}
+          <Stack.Screen name="Drawer">
+            {props => (
+              <DrawerStack {...props} onLogout={checkUser} />
+            )}
           </Stack.Screen>
         ) : (
           <Stack.Screen name="Register">
-            {props => <Register {...props} onRegister={checkUser} />}
+            {props => (
+              <Register {...props} onRegister={checkUser} />
+            )}
           </Stack.Screen>
         )}
       </Stack.Navigator>
